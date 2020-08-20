@@ -1,10 +1,21 @@
 use bevy::prelude::*;
 
+#[derive(std::fmt::Debug)]
+struct Vector {
+    x: i32,
+    y: i32,
+}
+
+struct Rusty {
+    pub velocity: Vector,
+}
+
 fn main() {
     App::build()
         .add_default_plugins()
         .add_startup_system(setup.system())
         .add_system(animate_sprite_system.system())
+        .add_system(keyboard_input_system.system())
         .run();
 }
 
@@ -17,6 +28,26 @@ fn animate_sprite_system(
             let texture_atlas = texture_atlases.get(&texture_atlas_handle).unwrap();
             sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
             timer.reset();
+        }
+    }
+}
+
+fn keyboard_input_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut rusty_query: Query<(&Rusty, &mut Translation)>,
+) {
+    for (_rusty, mut translation) in &mut rusty_query.iter() {
+        if keyboard_input.pressed(KeyCode::Up) {
+            translation.0 += Vec3::new(0f32, 1f32, 0f32);
+        }
+        if keyboard_input.pressed(KeyCode::Right) {
+            translation.0 += Vec3::new(1f32, 0f32, 0f32);
+        }
+        if keyboard_input.pressed(KeyCode::Down) {
+            translation.0 += Vec3::new(0f32, -1f32, 0f32);
+        }
+        if keyboard_input.pressed(KeyCode::Left) {
+            translation.0 += Vec3::new(-1f32, 0f32, 0f32);
         }
     }
 }
@@ -39,6 +70,9 @@ fn setup(
             texture_atlas: texture_atlas_handle,
             scale: Scale(5.0),
             ..Default::default()
+        })
+        .with(Rusty {
+            velocity: Vector { x: 0, y: 0 },
         })
         .with(Timer::from_seconds(0.1));
 }

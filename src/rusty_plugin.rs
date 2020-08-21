@@ -8,6 +8,7 @@ enum Direction {
 
 struct Rusty {
     direction: Direction,
+    speed: f32,
 }
 
 impl Rusty {
@@ -71,21 +72,25 @@ fn keyboard_input_system(
 ) {
     for (mut rusty, mut translation, mut rotation) in &mut rusty_query.iter() {
         if keyboard_input.pressed(KeyCode::Up) {
-            translation.0 += Vec3::new(0f32, 1f32, 0f32);
+            *translation.0.y_mut() = translation.0.y() + 1f32 * rusty.speed;
         } else if keyboard_input.pressed(KeyCode::Down) {
-            translation.0 += Vec3::new(0f32, -1f32, 0f32);
+            *translation.0.y_mut() = translation.0.y() - 1f32 * rusty.speed;
         }
         if keyboard_input.pressed(KeyCode::Right) {
-            translation.0 += Vec3::new(1f32, 0f32, 0f32);
+            *translation.0.x_mut() = translation.0.x() + 1f32 * rusty.speed;
             *rotation = Rotation::from_rotation_z(-10f32 * (PI / 180f32));
             rusty.set_direction(Direction::Right);
         } else if keyboard_input.pressed(KeyCode::Left) {
-            translation.0 += Vec3::new(-1f32, 0f32, 0f32);
+            *translation.0.x_mut() = translation.0.x() - 1f32 * rusty.speed;
             *rotation = Rotation::from_rotation_z(10f32 * (PI / 180f32));
             rusty.set_direction(Direction::Left);
         } else {
             *rotation = Rotation::from_rotation_z(0f32);
         }
+
+        *translation.0.x_mut() = f32::max(-400.0, f32::min(380.0, translation.0.x()));
+        *translation.0.y_mut() = f32::max(-400.0, f32::min(380.0, translation.0.y()));
+        *translation.0.y_mut() = translation.0.y() - 2f32;
     }
 }
 
@@ -96,7 +101,7 @@ fn setup(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let texture_handle = asset_server
-        .load_sync(&mut textures, "assets/rusty_left_right.png")
+        .load_sync(&mut textures, "assets/rusty_left_right_cropped.png")
         .unwrap();
     let texture = textures.get(&texture_handle).unwrap();
     let texture_atlas = TextureAtlas::from_grid(texture_handle, texture.size, 3, 2);
@@ -110,6 +115,7 @@ fn setup(
         })
         .with(Rusty {
             direction: Direction::Right,
+            speed: 5f32,
         })
         .with(Timer::from_seconds(0.1));
 }

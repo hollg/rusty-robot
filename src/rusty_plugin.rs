@@ -1,3 +1,4 @@
+use crate::gravity::Gravity;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
@@ -90,7 +91,7 @@ fn keyboard_input_system(
 
         *translation.0.x_mut() = f32::max(-400.0, f32::min(380.0, translation.0.x()));
         *translation.0.y_mut() = f32::max(-400.0, f32::min(380.0, translation.0.y()));
-        *translation.0.y_mut() = translation.0.y() - 2f32;
+        // *translation.0.y_mut() = translation.0.y() - 2f32;
     }
 }
 
@@ -117,5 +118,6 @@ fn setup(
             direction: Direction::Right,
             speed: 5f32,
         })
+        .with(Gravity)
         .with(Timer::from_seconds(0.1));
 }

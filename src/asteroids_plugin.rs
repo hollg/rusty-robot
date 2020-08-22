@@ -1,26 +1,22 @@
+use crate::gravity::Gravity;
 use bevy::prelude::*;
 use rand::Rng;
-struct Gravity;
 
 struct AsteroidTimer(Timer);
+
+struct Asteroid;
 
 pub struct AsteroidsPlugin;
 
 impl Plugin for AsteroidsPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(AsteroidTimer(Timer::from_seconds(0.5)))
-            .add_system(asteroid_system.system())
-            .add_system(gravity_system.system());
+            .add_system(asteroid_creator_system.system());
+        // .add_system(asteroid_destroyer_system.system());
     }
 }
 
-fn gravity_system(mut query: Query<(&Gravity, &mut Translation)>) {
-    for (_gravity, mut translation) in &mut query.iter() {
-        *translation.0.y_mut() = translation.y() + -2.5;
-    }
-}
-
-fn asteroid_system(
+fn asteroid_creator_system(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
@@ -40,7 +36,21 @@ fn asteroid_system(
                 },
                 ..Default::default()
             })
+            .with(Asteroid)
             .with(Gravity);
         timer.0.reset();
+    }
+}
+
+// this currently breaks stuff
+// see https://github.com/bevyengine/bevy/issues/135
+fn asteroid_destroyer_system(
+    mut commands: Commands,
+    mut query: Query<(&Asteroid, &mut Translation, Entity)>,
+) {
+    for (_asteroid, translation, entity) in &mut query.iter() {
+        if translation.0.y() < -400.0 {
+            commands.despawn(entity);
+        }
     }
 }

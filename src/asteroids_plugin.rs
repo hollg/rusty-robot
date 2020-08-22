@@ -10,9 +10,9 @@ pub struct AsteroidsPlugin;
 
 impl Plugin for AsteroidsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(AsteroidTimer(Timer::from_seconds(0.5)))
-            .add_system(asteroid_creator_system.system());
-        // .add_system(asteroid_destroyer_system.system());
+        app.add_resource(AsteroidTimer(Timer::from_seconds(1.0, true)))
+            .add_system(asteroid_creator_system.system())
+            .add_system(asteroid_destroyer_system.system());
     }
 }
 
@@ -26,7 +26,6 @@ fn asteroid_creator_system(
     timer.0.tick(time.delta_seconds);
 
     if timer.0.finished {
-        println!("spawn asteroid");
         commands
             .spawn(SpriteComponents {
                 material: materials.add(Color::rgb(0.2, 0.2, 0.8).into()),
@@ -42,14 +41,13 @@ fn asteroid_creator_system(
     }
 }
 
-// this currently breaks stuff
-// see https://github.com/bevyengine/bevy/issues/135
 fn asteroid_destroyer_system(
     mut commands: Commands,
     mut query: Query<(&Asteroid, &mut Translation, Entity)>,
 ) {
     for (_asteroid, translation, entity) in &mut query.iter() {
         if translation.0.y() < -400.0 {
+            println!("despawn");
             commands.despawn(entity);
         }
     }

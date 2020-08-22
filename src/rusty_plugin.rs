@@ -119,5 +119,5 @@ fn setup(
             speed: 5f32,
         })
         .with(Gravity)
-        .with(Timer::from_seconds(0.1));
+        .with(Timer::from_seconds(0.1, true));
 }

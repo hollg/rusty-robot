@@ -46,8 +46,7 @@ fn asteroid_destroyer_system(
     mut query: Query<(&Asteroid, &mut Translation, Entity)>,
 ) {
     for (_asteroid, translation, entity) in &mut query.iter() {
-        if translation.0.y() < -400.0 {
-            println!("despawn");
+        if translation.0.y() <= -400.0 {
             commands.despawn(entity);
         }
     }

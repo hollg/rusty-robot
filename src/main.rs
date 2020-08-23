@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-mod asteroids_plugin;
+mod asteroids;
 mod gravity;
-mod rusty_plugin;
+mod rusty;
 
 fn main() {
     App::build()
@@ -13,8 +13,8 @@ fn main() {
             ..Default::default()
         })
         .add_default_plugins()
-        .add_plugin(rusty_plugin::RustyPlugin)
-        .add_plugin(asteroids_plugin::AsteroidsPlugin)
+        .add_plugin(rusty::RustyPlugin)
+        .add_plugin(asteroids::AsteroidsPlugin)
         .add_plugin(gravity::GravityPlugin)
         .run();
 }
